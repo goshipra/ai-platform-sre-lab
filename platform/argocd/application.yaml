@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: rag-platform
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/goshipra/ai-platform-sre-lab.git
+    targetRevision: main
+    path: apps/rag/overlays/local
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: rag-platform
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+
