@@ -73,17 +73,10 @@ pipeline {
             git -C gitops config user.email "jenkins-ci@users.noreply.github.com"
             git -C gitops add "${GITOPS_PATH}"
             git -C gitops diff --cached --quiet || git -C gitops commit -m "deploy: rag ${IMAGE_TAG}"
-            cat > gitops/.git-askpass <<'EOF'
-            #!/bin/sh
-            case "$1" in
-              *Username*) printf '%s' "$GITHUB_USER" ;;
-              *Password*) printf '%s' "$GITHUB_TOKEN" ;;
-            esac
-            EOF
-            chmod 700 gitops/.git-askpass
             set +x
-            GIT_ASKPASS="$PWD/gitops/.git-askpass" GIT_TERMINAL_PROMPT=0 git -C gitops push origin main
-            rm -f gitops/.git-askpass
+            git -C gitops \
+              -c credential.helper='!f() { echo "username=$GITHUB_USER"; echo "password=$GITHUB_TOKEN"; }; f' \
+              push origin main
           '''
         }
       }
