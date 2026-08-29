@@ -13,6 +13,23 @@ The central design rule is simple:
 Jenkins intentionally has no Kubernetes credentials. Argo CD intentionally does not build
 application code.
 
+## Runtime behavior: real versus stubbed
+
+This lab deploys the application with `GENERATOR=stub`. The infrastructure path and
+retrieval system are real: Jenkins builds the image, GHCR stores it, Argo CD reconciles
+Kubernetes, the init container embeds and ingests documents, and Qdrant performs vector
+search. Only the final LLM generation call is replaced by deterministic code that joins
+retrieved content.
+
+The source application still supports `GENERATOR=ollama`; Ollama was not removed or
+replaced. Stub mode keeps the required CI/GitOps path deterministic, free of LLM download
+costs, and runnable without GPU resources. A real-Ollama demonstration is a separate
+optional integration because the kind workload must be given a reachable Ollama endpoint
+and an explicit NetworkPolicy allowance.
+
+The application image pre-caches the `all-MiniLM-L6-v2` embedding model during its Docker
+build. Embedding and retrieval therefore work with runtime internet access denied.
+
 ## Delivery flow
 
 ```mermaid
@@ -159,4 +176,6 @@ Add `-v` only when you intentionally want to erase Jenkins state and credentials
 
 After this delivery path is healthy, extend the lab with Prometheus/Grafana, one
 availability SLO, an actionable alert, a controlled Qdrant failure, a runbook, and a short
-postmortem. This keeps the first lesson focused on Jenkins versus Argo CD versus GitOps.
+postmortem. An optional local Ollama integration can then demonstrate real generation
+without making nondeterministic LLM output part of the required CI gate. This keeps the
+first lesson focused on Jenkins versus Argo CD versus GitOps.
