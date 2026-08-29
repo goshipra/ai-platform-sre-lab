@@ -5,7 +5,7 @@ resources:
 images:
   - name: ghcr.io/goshipra/rag-mlops-pipeline
     newName: ghcr.io/goshipra/rag-mlops-pipeline
-    newTag: bootstrap
+    newTag: 6dc9aa11a8de
 commonLabels:
   environment: local
 
